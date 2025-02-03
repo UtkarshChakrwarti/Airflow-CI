@@ -1,0 +1,36 @@
+name: Deploy Airflow DAGs to Stage
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy-dags:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Deploy DAGs to Stage Airflow VM
+        uses: appleboy/ssh-action@v0.1.9
+        with:
+          # Target (stage) host details
+          host: "10.16.182.70"                       # Target internal host IP
+          username: "wps"                            # Target host username
+          password: ${{ secrets.TARGET_SSH_PASSWORD }}  # Target host password
+          port: 22
+
+          # Jump (proxy) host details
+          proxy_host: "52.172.45.176"                # Jump host IP
+          proxy_port: 22
+          proxy_username: "jumpuser"                 # Jump host username
+          proxy_password: ${{ secrets.JUMP_SSH_PASSWORD }}  # Jump host password
+
+          script: |
+            echo "Deploying DAGs to Stage Airflow VM..."
+            # Rsync command: only updates or adds files without deleting extra files.
+            rsync -avz $GITHUB_WORKSPACE/dags/ /opt/airflow/dags/
+            # Optional: Uncomment the following line to restart Airflow services if needed.
+            # sudo systemctl restart airflow-scheduler
