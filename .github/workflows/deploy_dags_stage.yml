@@ -1,4 +1,4 @@
-name: Deploy Airflow DAGs to Stage (Hardcoded Credentials with Key)
+name: Deploy Airflow DAGs to Stage (Using SSH Key)
 
 on:
   push:
@@ -13,34 +13,29 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Deploy DAGs to Stage Airflow VM (Using Key for Target)
+      - name: Deploy DAGs to Stage Airflow VM (Using SSH Key for Target)
+        # Set SSH_KNOWN_HOSTS to an empty string to disable host key checking
+        env:
+          SSH_KNOWN_HOSTS: ""
         uses: appleboy/ssh-action@v0.1.9
         with:
-          # Target host details (Stage Airflow VM)
+          # Target (Stage) host details
           host: "10.16.182.70"
           username: "wps"
-          # Key-based authentication for target host (since no password is used)
-          key: |
-            -----BEGIN RSA PRIVATE KEY-----
-            MIICWwIBAAKBgQC3EXAMPLEPRIVATEKEYDATA3sJjE+PpZ5g4v5n0+GlwQ
-            3WjVdFoEtjJ3fJe1wOg5/njLP+1yV82Cv1vL1sY3Yf3k/QbL+G4+L7wjfY9E
-            V1M9+EXAMPLEKEYDATA5vJkQIQIDAQABAoGAPF5+EXAMPLEPRIVATEKEYDATA
-            -----END RSA PRIVATE KEY-----
+          # Use the private key stored in your GitHub secret (TARGET_SSH_KEY)
+          key: ${{ secrets.TARGET_SSH_KEY }}
           port: 22
 
-          # Jump (proxy) host details
+          # Jump (Proxy) host details
           proxy_host: "52.172.45.176"
           proxy_port: 22
           proxy_username: "jumpuser"
           proxy_password: "jumpuser"
 
-          # Disable strict host key checking (so the host is automatically added to known hosts)
-          args: "-o StrictHostKeyChecking=no"
-
           script: |
             echo "Deploying DAGs to Stage Airflow VM..."
-            # The rsync command copies or updates files from the repository's "dags/" folder 
+            # Rsync command: only updates or adds files from the repository's 'dags/' folder
             # to the remote directory (/opt/airflow/dags/) without deleting extra files.
             rsync -avz $GITHUB_WORKSPACE/dags/ /opt/airflow/dags/
-            # Optionally, restart Airflow services if needed (uncomment the following line):
+            # Optionally, restart Airflow services if needed:
             # sudo systemctl restart airflow-scheduler
