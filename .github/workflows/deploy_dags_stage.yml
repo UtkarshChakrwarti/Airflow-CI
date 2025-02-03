@@ -1,9 +1,9 @@
-name: Deploy Airflow DAGs to Stage
+name: Deploy Airflow DAGs to Stage (Hardcoded Credentials with Key)
 
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   deploy-dags:
@@ -13,24 +13,34 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Deploy DAGs to Stage Airflow VM
+      - name: Deploy DAGs to Stage Airflow VM (Using Key for Target)
         uses: appleboy/ssh-action@v0.1.9
         with:
-          # Target (stage) host details
-          host: "10.16.182.70"                       # Target internal host IP
-          username: "wps"                            # Target host username
-          password: ${{ secrets.TARGET_SSH_PASSWORD }}  # Target host password
+          # Target host details (Stage Airflow VM)
+          host: "10.16.182.70"
+          username: "wps"
+          # Key-based authentication for target host (since no password is used)
+          key: |
+            -----BEGIN RSA PRIVATE KEY-----
+            MIICWwIBAAKBgQC3EXAMPLEPRIVATEKEYDATA3sJjE+PpZ5g4v5n0+GlwQ
+            3WjVdFoEtjJ3fJe1wOg5/njLP+1yV82Cv1vL1sY3Yf3k/QbL+G4+L7wjfY9E
+            V1M9+EXAMPLEKEYDATA5vJkQIQIDAQABAoGAPF5+EXAMPLEPRIVATEKEYDATA
+            -----END RSA PRIVATE KEY-----
           port: 22
 
           # Jump (proxy) host details
-          proxy_host: "52.172.45.176"                # Jump host IP
+          proxy_host: "52.172.45.176"
           proxy_port: 22
-          proxy_username: "jumpuser"                 # Jump host username
-          proxy_password: ${{ secrets.JUMP_SSH_PASSWORD }}  # Jump host password
+          proxy_username: "jumpuser"
+          proxy_password: "jumpuser"
+
+          # Disable strict host key checking (so the host is automatically added to known hosts)
+          args: "-o StrictHostKeyChecking=no"
 
           script: |
             echo "Deploying DAGs to Stage Airflow VM..."
-            # Rsync command: only updates or adds files without deleting extra files.
+            # The rsync command copies or updates files from the repository's "dags/" folder 
+            # to the remote directory (/opt/airflow/dags/) without deleting extra files.
             rsync -avz $GITHUB_WORKSPACE/dags/ /opt/airflow/dags/
-            # Optional: Uncomment the following line to restart Airflow services if needed.
+            # Optionally, restart Airflow services if needed (uncomment the following line):
             # sudo systemctl restart airflow-scheduler
