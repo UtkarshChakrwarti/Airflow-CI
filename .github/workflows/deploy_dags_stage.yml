@@ -3,7 +3,7 @@ name: Deploy Airflow DAGs to Stage (Hardcoded Credentials with Key)
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   deploy-dags:
