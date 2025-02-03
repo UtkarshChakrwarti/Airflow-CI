@@ -14,16 +14,21 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Deploy DAGs to Stage Airflow VM (Using SSH Key for Target)
-        # Set SSH_KNOWN_HOSTS to an empty string to disable host key checking
         env:
+          # Disables host key checking
           SSH_KNOWN_HOSTS: ""
         uses: appleboy/ssh-action@v0.1.9
         with:
           # Target (Stage) host details
           host: "10.16.182.70"
           username: "wps"
-          # Use the private key stored in your GitHub secret (TARGET_SSH_KEY)
-          key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDtIu+YzKjfL7wigoBpmHQEi0Q8ECOlozSYMq29tXeyA7SrGDO9dc8lhjjDAUPi0HLj8/KafX11HRnWE0kkA52msEd76vwqeXBy6aVuYGe14Omv5tVC2uy1sruHvS2ZxiNmFaIMBKWnLQk7dFT/KanOG3vfOnByDFh+Nd4yocS/9Nd1YpDI50t15FJFeqapMbcK+u3qsvHB41BIdLbWewSx1Nn9HAEhNmXVZWKqyAZBbAPZAbqixd4d4Ts896fcL3oAtDBnDjZj2gUX+eYLEjsrg+dl7mkLMCDnJX5Xr78S82WAnJpTxvs/aPv0XZ6pE97XqGW4OrF4ZAEVwbNichsKKmdwSTBjAV0yZTcqKUQfcV+i/oNsVLIqlnil6Y1cUX72MhH/p90nQ77VyljJpfQZ3Q94txw+z5o09ojZFCMIrRxRv15ewFFS2ahOHTReVVrEDnpQP9N7hrvLWhmCSmO764khALizpCwE5U0h7tODkkTs8kzIDz635BetB+19Vpj2iFVRWwERJhilvzdC1MKEdXlbBLscFRoKjrzNhUjlXyV+eP0KxD/kQ8W1u8QLljjgQ+ra6KPKzmhx9hVf97ywLbeiV3KWY8AmQ2MoEUGJk4Apo7hid6inmhhO/lrTDSjy3yBHpF8zdzJXoyeED3HifFQZ+gvs2eFDNNpOVlj0hQ== your_email@example.com"
+          # Provide your private key in multi-line PEM format
+          key: |
+            -----BEGIN RSA PRIVATE KEY-----
+            MIICWwIBAAKBgQC3EXAMPLEPRIVATEKEYDATA3sJjE+PpZ5g4v5n0+GlwQ
+            3WjVdFoEtjJ3fJe1wOg5/njLP+1yV82Cv1vL1sY3Yf3k/QbL+G4+L7wjfY9E
+            V1M9+EXAMPLEKEYDATA5vJkQIQIDAQABAoGAPF5+EXAMPLEPRIVATEKEYDATA
+            -----END RSA PRIVATE KEY-----
           port: 22
 
           # Jump (Proxy) host details
@@ -34,7 +39,7 @@ jobs:
 
           script: |
             echo "Deploying DAGs to Stage Airflow VM..."
-            # Rsync command: only updates or adds files from the repository's 'dags/' folder
+            # Rsync command: Only updates or adds files from the repository's 'dags/' folder
             # to the remote directory (/opt/airflow/dags/) without deleting extra files.
             rsync -avz $GITHUB_WORKSPACE/dags/ /opt/airflow/dags/
             # Optionally, restart Airflow services if needed:
