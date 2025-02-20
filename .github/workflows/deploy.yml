@@ -1,37 +1,37 @@
-name: SSH and List Directory
+name: SSH and List Directory via Jump Host (No Target Password)
 
 on:
   push:
     branches:
-      - github-actions-test
+      - main
 
 jobs:
   ssh-and-list:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted  # Running on your Mac as a self-hosted runner
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Execute SSH Commands
+      - name: Execute SSH Commands via Jump Host
         env:
           SSH_KNOWN_HOSTS: ""
-        uses: appleboy/ssh-action@v0.1.9
+        uses: appleboy/ssh-action@master
         with:
+          # Target VM details (no password needed)
           host: "10.16.182.70"
           username: "wps"
           port: 22
-          key: |
-            -----BEGIN RSA PRIVATE KEY-----
-            MIICWwIBAAKBgQC3EXAMPLEPRIVATEKEYDATA3sJjE+PpZ5g4v5n0+GlwQ
-            3WjVdFoEtjJ3fJe1wOg5/njLP+1yV82Cv1vL1sY3Yf3k/QbL+G4+L7wjfY9E
-            V1M9+EXAMPLEKEYDATA5vJkQIQIDAQABAoGAPF5+EXAMPLEPRIVATEKEYDATA
-            -----END RSA PRIVATE KEY-----
+          # Do not include password or key for the target since it's not required
+
+          # Jump host details (password authentication)
           proxy_host: "52.172.45.176"
           proxy_port: 22
           proxy_username: "jumpuser"
           proxy_password: "jumpuser"
+
           script: |
+            echo "Connected to target VM via jump host."
             echo "Changing directory to /home/myntra"
             cd /home/myntra
             echo "Listing directory contents:"
