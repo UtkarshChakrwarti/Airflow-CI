@@ -1,4 +1,4 @@
-name: Deploy to Pods via Jump Host
+name: SSH and List Directory
 
 on:
   push:
@@ -6,19 +6,34 @@ on:
       - github-actions-test
 
 jobs:
-  deploy:
+  ssh-and-list:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-      - name: Deploy via Jump Host
-        uses: appleboy/ssh-action@master
+      - name: Execute SSH Commands
+        env:
+          SSH_KNOWN_HOSTS: ""
+        uses: appleboy/ssh-action@v0.1.9
         with:
-          host: "52.172.45.176"
-          username: "jumpuser"
-          key: "jumpuser"
+          host: "10.16.182.70"
+          username: "wps"
+          key: |
+            -----BEGIN RSA PRIVATE KEY-----
+            MIICWwIBAAKBgQC3EXAMPLEPRIVATEKEYDATA3sJjE+PpZ5g4v5n0+GlwQ
+            3WjVdFoEtjJ3fJe1wOg5/njLP+1yV82Cv1vL1sY3Yf3k/QbL+G4+L7wjfY9E
+            V1M9+EXAMPLEKEYDATA5vJkQIQIDAQABAoGAPF5+EXAMPLEPRIVATEKEYDATA
+            -----END RSA PRIVATE KEY-----
+          port: 22
+          proxy_host: "52.172.45.176"
+          proxy_port: 22
+          proxy_username: "jumpuser"
+          proxy_password: "jumpuser"
           script: |
-            cd /home/ubuntu/deployment-scripts
-            ./deploy_pods.sh
+            echo "Changing directory to /home/myntra"
+            cd /home/myntra
+            echo "Listing directory contents:"
+            ls -latr
+
