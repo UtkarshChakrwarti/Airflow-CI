@@ -16,9 +16,9 @@ jobs:
       - name: Deploy via Jump Host
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.JUMP_HOST }}
-          username: ${{ secrets.JUMP_USER }}
-          key: ${{ secrets.JUMP_SSH_KEY }}
+          host: "52.172.45.176"
+          username: "jumpuser"
+          key: "jumpuser"
           script: |
             cd /home/ubuntu/deployment-scripts
             ./deploy_pods.sh
