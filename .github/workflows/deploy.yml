@@ -20,13 +20,13 @@ jobs:
         with:
           host: "10.16.182.70"
           username: "wps"
+          port: 22
           key: |
             -----BEGIN RSA PRIVATE KEY-----
             MIICWwIBAAKBgQC3EXAMPLEPRIVATEKEYDATA3sJjE+PpZ5g4v5n0+GlwQ
             3WjVdFoEtjJ3fJe1wOg5/njLP+1yV82Cv1vL1sY3Yf3k/QbL+G4+L7wjfY9E
             V1M9+EXAMPLEKEYDATA5vJkQIQIDAQABAoGAPF5+EXAMPLEPRIVATEKEYDATA
             -----END RSA PRIVATE KEY-----
-          port: 22
           proxy_host: "52.172.45.176"
           proxy_port: 22
           proxy_username: "jumpuser"
@@ -36,4 +36,3 @@ jobs:
             cd /home/myntra
             echo "Listing directory contents:"
             ls -latr
-
