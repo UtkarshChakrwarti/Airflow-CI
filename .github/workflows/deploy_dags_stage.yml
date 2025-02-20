@@ -1,46 +1,35 @@
-name: Deploy Airflow DAGs to Stage (Using SSH Key)
+name: Deploy Placeholder
 
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
-  deploy-dags:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Deploy DAGs to Stage Airflow VM (Using SSH Key for Target)
-        env:
-          # Disables host key checking
-          SSH_KNOWN_HOSTS: ""
-        uses: appleboy/ssh-action@v0.1.9
-        with:
-          # Target (Stage) host details
-          host: "10.16.182.70"
-          username: "wps"
-          # Provide your private key in multi-line PEM format
-          key: |
-            -----BEGIN RSA PRIVATE KEY-----
-            MIICWwIBAAKBgQC3EXAMPLEPRIVATEKEYDATA3sJjE+PpZ5g4v5n0+GlwQ
-            3WjVdFoEtjJ3fJe1wOg5/njLP+1yV82Cv1vL1sY3Yf3k/QbL+G4+L7wjfY9E
-            V1M9+EXAMPLEKEYDATA5vJkQIQIDAQABAoGAPF5+EXAMPLEPRIVATEKEYDATA
-            -----END RSA PRIVATE KEY-----
-          port: 22
+      - name: Run Placeholder Script
+        run: |
+          echo "Starting placeholder deployment..."
 
-          # Jump (Proxy) host details
-          proxy_host: "52.172.45.176"
-          proxy_port: 22
-          proxy_username: "jumpuser"
-          proxy_password: "jumpuser"
+          # Airflow Stage Environment Details:
+          # VM: pac-myntraairflowstage0
+          #
+          # Manual Login Steps:
+          # 1. Connect to the jump host:
+          #    ssh jumpuser@52.172.45.176  # Password: jumpuser
+          #
+          # 2. From the jump host, connect to the target VM:
+          #    ssh wps@10.16.182.70
+          #
+          # Airflow Stage Web UI:
+          # URL: stage-mws-airflow.myntra.com
+          # Username: admin
+          # Password: admin
 
-          script: |
-            echo "Deploying DAGs to Stage Airflow VM..."
-            # Rsync command: Only updates or adds files from the repository's 'dags/' folder
-            # to the remote directory (/opt/airflow/dags/) without deleting extra files.
-            rsync -avz $GITHUB_WORKSPACE/dags/ /opt/airflow/dags/
-            # Optionally, restart Airflow services if needed:
-            # sudo systemctl restart airflow-scheduler
+          echo "Placeholder script executed. No actions performed."
